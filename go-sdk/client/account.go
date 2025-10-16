@@ -69,6 +69,15 @@ type BalanceResponse struct {
 	Balances      []TokenBalance `json:"balances"`
 }
 
+// AccountAddress represents an account address information
+type AccountAddress struct {
+	AccountID        string `json:"account_id"`
+	TokenID          string `json:"token_id"`
+	RecipientAddress string `json:"recipient_address"`
+	RefName          string `json:"ref_name"`
+	CreatedAt        string `json:"created_at"`
+}
+
 // GetAccountInfo retrieves account information for the authenticated user
 func (c *Client) GetAccountInfo() (*AccountResponse, error) {
 	url := c.url + "/accounts/info"
@@ -267,4 +276,45 @@ func (c *Client) GetTokenBalances(walletAddress string, chainID int, tokenSymbol
 	}
 
 	return &response, nil
+}
+
+// ListAccountAddresses retrieves all account addresses for the authenticated account
+func (c *Client) ListAccountAddresses() ([]*AccountAddress, error) {
+	url := c.url + "/accounts/addresses"
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+
+	// 设置认证头
+	if c.tokenHolder != nil {
+		req.Header.Set("Authorization", "Bearer "+c.tokenHolder.getToken())
+	}
+
+	// 发送请求
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to send request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	// 读取响应
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response: %w", err)
+	}
+
+	// 检查 HTTP 状态码
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("API request failed with status %d: %s", resp.StatusCode, string(body))
+	}
+
+	// 解析响应
+	var addresses []*AccountAddress
+	if err := json.Unmarshal(body, &addresses); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal response: %w", err)
+	}
+
+	return addresses, nil
 }
