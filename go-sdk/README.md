@@ -24,7 +24,7 @@ import (
 func main() {
     // Create client
     ctx := context.Background()
-    client, err := client.NewSDKClient(ctx, "https://api.reddio.com", "your-api-key")
+    client, err := client.NewSDKClient(ctx, "https://reddio-service-prod.reddio.com", "your-api-key")
     if err != nil {
         log.Fatal(err)
     }
@@ -57,7 +57,7 @@ func NewSDKClient(ctx context.Context, url string, apiKey string) (*Client, erro
 **Example:**
 ```go
 ctx := context.Background()
-client, err := client.NewSDKClient(ctx, "https://api.reddio.com", "your-api-key")
+client, err := client.NewSDKClient(ctx, "https://reddio-service-prod.reddio.com", "your-api-key")
 if err != nil {
     log.Fatal(err)
 }
@@ -531,7 +531,7 @@ import (
 func main() {
     // Create client
     ctx := context.Background()
-    client, err := client.NewSDKClient(ctx, "https://api.reddio.com", "your-api-key")
+    client, err := client.NewSDKClient(ctx, "https://reddio-service-dev.reddio.com", "your-api-key")
     if err != nil {
         log.Fatal(err)
     }
