@@ -249,3 +249,66 @@ func (c *Client) ExternalSendNotifyForPaymentSuccess(req *ExternalSendNotifyForP
 
 	return &response, nil
 }
+
+// PaymentReceiver represents a payment receiver information
+type PaymentReceiver struct {
+	Type             string `json:"type"` // "fee" or "merchant"
+	RecipientAddress string `json:"recipient_address"`
+	Amount           string `json:"amount"` // wei format
+	Rate             string `json:"rate"`   // percentage
+}
+
+
+// ExternalCreatePaymentRequest represents the request for creating an external payment
+type ExternalCreatePaymentRequest struct {
+	ProductID      string `json:"product_id"`
+	ProductTokenID string `json:"product_token_id"`
+	Count          int    `json:"count"`
+}
+
+// ExternalCreatePaymentResponse represents the response for creating an external payment
+type ExternalCreatePaymentResponse struct {
+	Message          string             `json:"message"`
+	PaymentID        string             `json:"payment_id"`
+	PayLink          string             `json:"pay_link"`
+	ContractAddress  string             `json:"contract_address"`
+	PaymentReceivers []*PaymentReceiver `json:"payment_receivers"`
+	TokenAddress     string             `json:"token_address"`
+	Decimals         int                `json:"decimals"`
+}
+
+
+// ExternalCreatePayment creates a new external payment
+func (c *Client) ExternalCreatePayment(req *ExternalCreatePaymentRequest) (*ExternalCreatePaymentResponse, error) {
+	reqBody, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal request: %w", err)
+	}
+	url := c.url + "/external/payments"
+	httpReq, err := http.NewRequest("POST", url, bytes.NewBuffer(reqBody))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+	httpReq.Header.Set("Content-Type", "application/json")
+	if c.tokenHolder != nil {
+		httpReq.Header.Set("Authorization", "Bearer "+c.tokenHolder.getToken())
+	}
+	client := &http.Client{}
+	resp, err := client.Do(httpReq)
+	if err != nil {
+		return nil, fmt.Errorf("failed to send request: %w", err)
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response: %w", err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("API request failed with status %d: %s", resp.StatusCode, string(body))
+	}
+	var response ExternalCreatePaymentResponse
+	if err := json.Unmarshal(body, &response); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal response: %w", err)
+	}
+	return &response, nil
+}
