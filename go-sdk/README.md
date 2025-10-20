@@ -371,6 +371,33 @@ if err != nil {
 fmt.Printf("Notification setup result: %s\n", response.Message)
 ```
 
+#### ExternalCreatePayment
+
+Creates a new external payment.
+
+```go
+func (c *Client) ExternalCreatePayment(req *ExternalCreatePaymentRequest) (*ExternalCreatePaymentResponse, error)
+```
+
+**Parameters:**
+- `req`: External payment creation request object
+
+**Example:**
+```go
+req := &client.ExternalCreatePaymentRequest{
+    ProductID:      "product123",
+    ProductTokenID: "token456",
+    Count:          1,
+}
+response, err := client.ExternalCreatePayment(req)
+if err != nil {
+    log.Fatal(err)
+}
+fmt.Printf("Payment created successfully: %s\n", response.PaymentID)
+fmt.Printf("Payment link: %s\n", response.PayLink)
+fmt.Printf("Contract address: %s\n", response.ContractAddress)
+```
+
 ## Data Structures
 
 ### Account Related
@@ -482,6 +509,38 @@ type Payment struct {
 }
 ```
 
+#### PaymentReceiver
+```go
+type PaymentReceiver struct {
+    Type             string `json:"type"` // "fee" or "merchant"
+    RecipientAddress string `json:"recipient_address"`
+    Amount           string `json:"amount"` // wei format
+    Rate             string `json:"rate"`   // percentage
+}
+```
+
+#### ExternalCreatePaymentRequest
+```go
+type ExternalCreatePaymentRequest struct {
+    ProductID      string `json:"product_id"`
+    ProductTokenID string `json:"product_token_id"`
+    Count          int    `json:"count"`
+}
+```
+
+#### ExternalCreatePaymentResponse
+```go
+type ExternalCreatePaymentResponse struct {
+    Message          string             `json:"message"`
+    PaymentID        string             `json:"payment_id"`
+    PayLink          string             `json:"pay_link"`
+    ContractAddress  string             `json:"contract_address"`
+    PaymentReceivers []*PaymentReceiver `json:"payment_receivers"`
+    TokenAddress     string             `json:"token_address"`
+    Decimals         int                `json:"decimals"`
+}
+```
+
 ## Error Handling
 
 All methods in the SDK may return errors. Common error types include:
@@ -566,6 +625,20 @@ func main() {
         log.Fatal(err)
     }
     fmt.Printf("You have %d products\n", len(products.Products))
+    
+    // Create external payment
+    paymentReq := &client.ExternalCreatePaymentRequest{
+        ProductID:      productResp.Product.ProductID,
+        ProductTokenID: productResp.Product.ProductTokens[0].ProductTokenID,
+        Count:          1,
+    }
+    
+    paymentResp, err := client.ExternalCreatePayment(paymentReq)
+    if err != nil {
+        log.Fatal(err)
+    }
+    fmt.Printf("External payment created successfully, ID: %s\n", paymentResp.PaymentID)
+    fmt.Printf("Payment link: %s\n", paymentResp.PayLink)
     
     // Get payment records
     payments, err := client.ListPaymentsByAccount(10, 0)
