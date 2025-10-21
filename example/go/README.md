@@ -1,33 +1,250 @@
-# Reddio Pay Go SDK Demonstration System
+# Reddio Pay Go SDK Example
 
-This is a Go-based demonstration system that showcases how to use various APIs from the `github.com/reddio-com/reddio-pay-sdk/go-sdk/client` SDK.
+This example demonstrates how to use the `github.com/reddio-com/reddio-pay-sdk/go-sdk` SDK in a Go application. The example shows how to integrate Reddio Pay SDK into a backend service for order management and payment processing.
 
-## Features
+## Overview
 
-- **SDK API Demonstration**: Automatically demonstrates all SDK API usage methods on startup
-- **Order Management**: Simple order creation and management functionality
-- **Payment Integration**: Shows how to use the SDK to create payments and query status
-- **RESTful API**: Provides standard REST API interfaces using Gorilla Mux
+This example server showcases the integration of Reddio Pay Go SDK with the following features:
 
-## Tech Stack
+- **SDK Initialization**: How to initialize the Reddio Pay SDK client
+- **Token Management**: Getting currently supported token types using ListTokens API
+- **Product Management**: Creating and managing products using SDK APIs
+- **Payment Processing**: Creating external payments and checking payment status
+- **Order Management**: A simple order system that demonstrates SDK usage
 
-- Go 1.21
-- Gorilla Mux Router
-- database/sql + SQLite
-- Reddio Pay Go SDK
+## SDK APIs Demonstrated
 
-## SDK Demonstration Features
+The example demonstrates the following Reddio Pay SDK APIs:
 
-The system automatically demonstrates the following SDK APIs on startup:
+### 1. SDK Client Initialization
 
-1. **List Products** (`ListProducts`)
-2. **Create Product** (`CreateProduct`)
-3. **Get Product Info** (`GetProduct`)
-4. **Add Product Token** (`AddProductToken`)
-5. **Create External Payment** (`ExternalCreatePayment`)
-6. **Query Payment Status** (`GetPaymentByID`)
+```go
+import "github.com/reddio-com/reddio-pay-sdk/go-sdk/client"
 
-## Quick Start
+// Initialize SDK client
+ctx := context.Background()
+client, err := client.NewSDKClient(ctx, "https://reddio-service-prod.reddio.com", apiKey)
+if err != nil {
+    log.Fatal("Failed to initialize Reddio Pay client:", err)
+}
+```
+
+### 2. List Tokens
+
+```go
+// Get all currently supported token types
+tokensResp, err := client.ListTokens()
+if err != nil {
+    return fmt.Errorf("failed to get token list: %w", err)
+}
+
+log.Printf("Successfully retrieved %d supported tokens:", tokensResp.Count)
+for i, token := range tokensResp.Tokens {
+    log.Printf("  Token %d: ID=%s, Name=%s, Symbol=%s, Chain=%s, Active=%t", 
+        i+1, token.TokenID, token.Name, token.Symbol, token.ChainName, token.IsActive)
+}
+```
+
+**Purpose**: This API returns all currently supported token types that can be used for payments. It shows available tokens with their details including token ID, name, symbol, chain information, and active status.
+
+### 3. List Products
+
+```go
+// Get all products
+productsResp, err := client.ListProducts()
+if err != nil {
+    return fmt.Errorf("failed to get product list: %w", err)
+}
+
+log.Printf("Successfully retrieved %d products:", len(productsResp.Products))
+for i, product := range productsResp.Products {
+    log.Printf("  Product %d: ID=%s, Name=%s, Active=%t", 
+        i+1, product.ProductID, product.Name, product.Active)
+}
+```
+
+### 4. Create Product
+
+```go
+// Create a new product
+createReq := &client.CreateProductRequest{
+    Name:             "Demo Product",
+    Description:      "This is a demo product created through Go SDK",
+    Content:          "Product content description",
+    TokenIDList:      []string{"0x1234567890abcdef1234567890abcdef12345678"},
+    Price:            "1000000000000000000", // 1 ETH in wei
+    RecipientAddress: "0xabcdef1234567890abcdef1234567890abcdef12",
+}
+
+createResp, err := client.CreateProduct(createReq)
+if err != nil {
+    return fmt.Errorf("failed to create product: %w", err)
+}
+
+log.Printf("Successfully created product: ID=%s, Name=%s", 
+    createResp.Product.ProductID, createResp.Product.Name)
+```
+
+### 5. Get Product Information
+
+```go
+// Get product details
+product, err := client.GetProduct(productID)
+if err != nil {
+    return fmt.Errorf("failed to get product info: %w", err)
+}
+
+log.Printf("Product info: ID=%s, Name=%s, Active=%t", 
+    product.ProductID, product.Name, product.Active)
+```
+
+### 6. Add Product Token
+
+```go
+// Add a token to an existing product
+addTokenReq := &client.AddProductTokenRequest{
+    TokenID:          "0x9876543210fedcba9876543210fedcba98765432",
+    Price:            "2000000000000000000", // 2 ETH in wei
+    RecipientAddress: "0xfedcba9876543210fedcba9876543210fedcba98",
+}
+
+addTokenResp, err := client.AddProductToken(productID, addTokenReq)
+if err != nil {
+    return fmt.Errorf("failed to add product token: %w", err)
+}
+
+log.Printf("Successfully added product token: ID=%s, TokenID=%s, Price=%s", 
+    addTokenResp.ProductToken.ProductTokenID, 
+    addTokenResp.ProductToken.TokenID, 
+    addTokenResp.ProductToken.Price)
+```
+
+### 7. Create External Payment
+
+```go
+// Create an external payment for an order
+createPaymentReq := &client.ExternalCreatePaymentRequest{
+    ProductID:      productID,
+    ProductTokenID: productTokenID,
+    Count:          1,
+}
+
+createPaymentResp, err := client.ExternalCreatePayment(createPaymentReq)
+if err != nil {
+    return fmt.Errorf("failed to create external payment: %w", err)
+}
+
+log.Printf("Successfully created external payment: PaymentID=%s, PayLink=%s", 
+    createPaymentResp.PaymentID, createPaymentResp.PayLink)
+```
+
+### 8. Get Payment Status
+
+```go
+// Query payment status
+payment, err := client.GetPaymentByID(paymentID)
+if err != nil {
+    return fmt.Errorf("failed to get payment status: %w", err)
+}
+
+log.Printf("Payment status: ID=%s, Status=%s, TransactionHash=%s", 
+    payment.PaymentID, payment.Status, payment.TransactionHash)
+```
+
+## Project Structure
+
+```
+example/go/
+├── main.go                   # Main entry point with SDK initialization
+├── go.mod                    # Go module dependencies
+└── internal/
+    ├── config/
+    │   └── config.go         # Configuration management
+    ├── database/
+    │   ├── database.go       # Database setup
+    │   └── models.go         # Data models
+    ├── handlers/
+    │   └── order_handler.go  # HTTP handlers
+    └── services/
+        ├── order_service.go  # Business logic with SDK integration
+        └── sdk_demo.go       # SDK API demonstration service
+```
+
+## Key Integration Points
+
+### 1. SDK Client in Order Service
+
+The `OrderService` integrates the Reddio Pay SDK to create payments:
+
+```go
+type OrderService struct {
+    db     *sql.DB
+    client *client.Client
+}
+
+func (s *OrderService) CreateOrder(customerName, customerEmail, productID, productTokenID string, quantity int) (*database.Order, error) {
+    // ... create local order ...
+    
+    // Call Reddio Pay SDK to create payment
+    reddioReq := &client.ExternalCreatePaymentRequest{
+        ProductID:      productID,
+        ProductTokenID: productTokenID,
+        Count:          quantity,
+    }
+
+    reddioResp, err := s.client.ExternalCreatePayment(reddioReq)
+    if err != nil {
+        return nil, fmt.Errorf("failed to create Reddio Pay payment: %w", err)
+    }
+
+    // Update order with payment information
+    order.ReddioPaymentID = reddioResp.PaymentID
+    order.ReddioPayLink = reddioResp.PayLink
+    order.ReddioStatus = "created"
+    
+    return order, nil
+}
+```
+
+### 2. SDK Demonstration Service
+
+The `SDKDemoService` showcases all available SDK APIs:
+
+```go
+type SDKDemoService struct {
+    client *client.Client
+}
+
+func (s *SDKDemoService) DemoAllAPIs() error {
+    // Demonstrates all SDK APIs in sequence
+    // 1. List Products
+    // 2. Create Product
+    // 3. Get Product Info
+    // 4. Add Product Token
+    // 5. Create External Payment
+    // 6. Get Payment Status
+}
+```
+
+### 3. Configuration
+
+The SDK is configured with API key and URL:
+
+```go
+type Config struct {
+    ReddioAPIKey string
+    ReddioURL    string
+}
+
+func Load() *Config {
+    return &Config{
+        ReddioAPIKey: getEnv("REDDIO_API_KEY", "your_api_key"),
+        ReddioURL:    getEnv("REDDIO_URL", "https://reddio-service-prod.reddio.com"),
+    }
+}
+```
+
+## Running the Example
 
 ### 1. Install Dependencies
 
@@ -35,217 +252,56 @@ The system automatically demonstrates the following SDK APIs on startup:
 go mod tidy
 ```
 
-### 2. Run the Service
-
-```bash
-go run main.go
-```
-
-Or compile and run:
-
-```bash
-go build -o order-system main.go
-./order-system
-```
-
-The service will start on `http://localhost:8080`
-
-### 3. Environment Variables (Optional)
+### 2. Set Environment Variables (Optional)
 
 ```bash
 export REDDIO_API_KEY="your_api_key"
 export REDDIO_URL="https://reddio-service-prod.reddio.com"
 ```
 
-## API Endpoints
+### 3. Run the Example
 
-### Basic Information
-
-- **Base URL**: `http://localhost:8080/api`
-- **Content-Type**: `application/json`
-
-### 1. Create Order
-
-```http
-POST /api/orders
-Content-Type: application/json
-
-{
-  "customer_name": "John Doe",
-  "customer_email": "john@example.com",
-  "product_id": "prod_123",
-  "product_token_id": "token_456",
-  "quantity": 1
-}
+```bash
+go run main.go
 ```
 
-**Response Example:**
-```json
-{
-  "id": 1,
-  "order_number": "ORD00000001",
-  "customer_name": "John Doe",
-  "customer_email": "john@example.com",
-  "product_id": "prod_123",
-  "product_token_id": "token_456",
-  "quantity": 1,
-  "total_amount": "100.00",
-  "status": "pending",
-  "reddio_payment_id": "pay_789",
-  "reddio_pay_link": "https://pay.reddio.com/pay/pay_789",
-  "reddio_status": "created",
-  "created_at": "2024-01-01T00:00:00Z"
-}
-```
+The example will:
+1. Initialize the Reddio Pay SDK client
+2. Demonstrate all SDK APIs with detailed logging
+3. Start a REST API server for order management
+4. Show how to integrate SDK calls in business logic
 
-### 2. Get Order Details
+## SDK Integration Benefits
 
-```http
-GET /api/orders/{id}
-```
+This example demonstrates how the Reddio Pay SDK enables:
 
-**Response Example:**
-```json
-{
-  "id": 1,
-  "order_number": "ORD00000001",
-  "customer_name": "John Doe",
-  "customer_email": "john@example.com",
-  "product_id": "prod_123",
-  "product_token_id": "token_456",
-  "quantity": 1,
-  "total_amount": "100.00",
-  "status": "pending",
-  "reddio_payment_id": "pay_789",
-  "reddio_pay_link": "https://pay.reddio.com/pay/pay_789",
-  "reddio_status": "created",
-  "transaction_hash": "",
-  "created_at": "2024-01-01T00:00:00Z",
-  "updated_at": "2024-01-01T00:00:00Z",
-  "paid_at": null
-}
-```
+- **Easy Integration**: Simple client initialization and API calls
+- **Payment Processing**: Seamless payment creation and status tracking
+- **Product Management**: Complete product lifecycle management
+- **Error Handling**: Proper error handling and logging
+- **Flexibility**: Easy to integrate into existing Go applications
 
-### 3. Get Order Status
+## Dependencies
 
-```http
-GET /api/orders/{id}/status
-```
-
-**Response Example:**
-```json
-{
-  "order_number": "ORD00000001",
-  "status": "pending",
-  "reddio_status": "created",
-  "reddio_pay_link": "https://pay.reddio.com/pay/pay_789",
-  "transaction_hash": "",
-  "paid_at": null
-}
-```
-
-### 4. Check Payment Status
-
-```http
-POST /api/orders/{id}/check-payment
-```
-
-**Response Example:**
-```json
-{
-  "message": "Payment status updated",
-  "order_number": "ORD00000001",
-  "status": "paid",
-  "reddio_status": "paid",
-  "transaction_hash": "0x1234567890abcdef",
-  "paid_at": "2024-01-01T01:00:00Z"
-}
-```
-
-### 5. Get Order List
-
-```http
-GET /api/orders?page=1&limit=10&status=pending
-```
-
-**Query Parameters:**
-- `page`: Page number (default: 1)
-- `limit`: Items per page (default: 10, max: 100)
-- `status`: Order status filter (optional)
-
-**Response Example:**
-```json
-{
-  "orders": [
-    {
-      "id": 1,
-      "order_number": "ORD00000001",
-      "customer_name": "John Doe",
-      "customer_email": "john@example.com",
-      "product_id": "prod_123",
-      "product_token_id": "token_456",
-      "quantity": 1,
-      "total_amount": "100.00",
-      "status": "pending",
-      "reddio_payment_id": "pay_789",
-      "reddio_pay_link": "https://pay.reddio.com/pay/pay_789",
-      "reddio_status": "created",
-      "created_at": "2024-01-01T00:00:00Z"
-    }
-  ],
-  "pagination": {
-    "page": 1,
-    "limit": 10,
-    "total": 1,
-    "total_pages": 1
-  }
-}
-```
-
-## Order Status
-
-- `pending`: Awaiting payment
-- `paid`: Payment completed
-- `cancelled`: Order cancelled
-- `expired`: Order expired
-- `failed`: Creation failed
-
-## Usage Flow
-
-1. **Create Order**: Call `/api/orders` to create an order and get a Reddio Pay payment link
-2. **User Payment**: User visits the returned `reddio_pay_link` to complete payment
-3. **Check Status**: Call `/api/orders/{id}/check-payment` to update payment status
-4. **View Order**: Call `/api/orders/{id}` to view order details
-
-## Database
-
-The system uses the native `database/sql` package to operate on SQLite database, with the database file being `orders.db`.
-
-### Database Table Structure
-
-- **orders**: Order table (for demonstrating order management functionality)
-
-## Logging
-
-The system outputs detailed log information including:
-- SDK call logs
-- Order creation logs
-- Payment status update logs
-- Error messages
+- `github.com/reddio-com/reddio-pay-sdk/go-sdk` - Reddio Pay Go SDK
+- `github.com/gorilla/mux` - HTTP router
+- `database/sql` - Database operations
+- `github.com/mattn/go-sqlite3` - SQLite driver
 
 ## Error Handling
 
-All APIs return standard error responses:
+The example shows proper error handling patterns:
 
-```json
-{
-  "error": "Error description"
+```go
+// SDK API calls with error handling
+resp, err := client.ExternalCreatePayment(req)
+if err != nil {
+    // Handle SDK errors appropriately
+    return fmt.Errorf("failed to create payment: %w", err)
 }
+
+// Log successful operations
+log.Printf("Successfully created payment: %s", resp.PaymentID)
 ```
 
-Common HTTP status codes:
-- `200`: Success
-- `201`: Created successfully
-- `400`: Invalid request parameters
-- `404`: Resource not found
-- `500`: Internal server error
+This example serves as a comprehensive guide for integrating the Reddio Pay Go SDK into your Go applications.

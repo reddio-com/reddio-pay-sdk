@@ -13,7 +13,7 @@ type Config struct {
 // Load loads configuration
 func Load() *Config {
 	return &Config{
-		ReddioAPIKey: getEnv("REDDIO_API_KEY", "rd_b35ad5221273cf67a4b562ebb534a9260d926abfea9de108f3f2f74d2750f5d6"),
+		ReddioAPIKey: getEnv("REDDIO_API_KEY", "mock_api_key"),
 		ReddioURL:    getEnv("REDDIO_URL", "https://reddio-service-prod.reddio.com"),
 	}
 }
