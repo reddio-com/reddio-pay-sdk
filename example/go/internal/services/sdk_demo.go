@@ -24,13 +24,19 @@ func NewSDKDemoService(client *client.Client) *SDKDemoService {
 func (s *SDKDemoService) DemoAllAPIs() error {
 	log.Println("=== Reddio Pay Go SDK API Demonstration Started ===")
 	
-	// 1. Demonstrate getting product list
+	// 1. Demonstrate getting supported tokens
+	if err := s.demoListTokens(); err != nil {
+		log.Printf("Failed to demonstrate list tokens: %v", err)
+		log.Println("Continuing with other APIs...")
+	}
+	
+	// 2. Demonstrate getting product list
 	if err := s.demoListProducts(); err != nil {
 		log.Printf("Failed to demonstrate list products: %v", err)
 		log.Println("Continuing with other APIs...")
 	}
 	
-	// 2. Demonstrate creating product
+	// 3. Demonstrate creating product
 	productID, err := s.demoCreateProduct()
 	if err != nil {
 		log.Printf("Failed to demonstrate create product: %v", err)
@@ -38,13 +44,13 @@ func (s *SDKDemoService) DemoAllAPIs() error {
 		productID = "demo-product-id" // Use mock ID
 	}
 	
-	// 3. Demonstrate getting product info
+	// 4. Demonstrate getting product info
 	if err := s.demoActivateProduct(productID); err != nil {
 		log.Printf("Failed to demonstrate get product info: %v", err)
 		log.Println("Continuing with other APIs...")
 	}
 	
-	// 4. Demonstrate adding product token
+	// 5. Demonstrate adding product token
 	productTokenID, err := s.demoCreateProductToken(productID)
 	if err != nil {
 		log.Printf("Failed to demonstrate add product token: %v", err)
@@ -52,7 +58,7 @@ func (s *SDKDemoService) DemoAllAPIs() error {
 		productTokenID = "demo-product-token-id" // Use mock ID
 	}
 	
-	// 5. Demonstrate creating external payment
+	// 6. Demonstrate creating external payment
 	paymentID, err := s.demoExternalCreatePayment(productID, productTokenID)
 	if err != nil {
 		log.Printf("Failed to demonstrate create external payment: %v", err)
@@ -60,7 +66,7 @@ func (s *SDKDemoService) DemoAllAPIs() error {
 		paymentID = "demo-payment-id" // Use mock ID
 	}
 	
-	// 6. Demonstrate querying payment status
+	// 7. Demonstrate querying payment status
 	if err := s.demoGetPaymentByID(paymentID); err != nil {
 		log.Printf("Failed to demonstrate get payment by ID: %v", err)
 		log.Println("Continuing with other APIs...")
@@ -70,9 +76,31 @@ func (s *SDKDemoService) DemoAllAPIs() error {
 	return nil
 }
 
+// demoListTokens demonstrates getting supported tokens
+func (s *SDKDemoService) demoListTokens() error {
+	log.Println("\n--- 1. Demonstrate List Tokens ---")
+	
+	tokensResp, err := s.client.ListTokens()
+	if err != nil {
+		return fmt.Errorf("failed to get token list: %w", err)
+	}
+	
+	log.Printf("Successfully retrieved %d supported tokens:", tokensResp.Count)
+	for i, token := range tokensResp.Tokens {
+		log.Printf("  Token %d: ID=%s, Name=%s, Symbol=%s, Chain=%s, Active=%t", 
+			i+1, token.TokenID, token.Name, token.Symbol, token.ChainName, token.IsActive)
+		if i >= 4 { // Show only first 5 tokens to avoid too much output
+			log.Printf("  ... and %d more tokens", tokensResp.Count-5)
+			break
+		}
+	}
+	
+	return nil
+}
+
 // demoListProducts demonstrates getting product list
 func (s *SDKDemoService) demoListProducts() error {
-	log.Println("\n--- 1. Demonstrate List Products ---")
+	log.Println("\n--- 2. Demonstrate List Products ---")
 	
 	productsResp, err := s.client.ListProducts()
 	if err != nil {
@@ -90,7 +118,7 @@ func (s *SDKDemoService) demoListProducts() error {
 
 // demoCreateProduct demonstrates creating product
 func (s *SDKDemoService) demoCreateProduct() (string, error) {
-	log.Println("\n--- 2. Demonstrate Create Product ---")
+	log.Println("\n--- 3. Demonstrate Create Product ---")
 	
 	createReq := &client.CreateProductRequest{
 		Name:             "SDK Demo Product",
@@ -112,7 +140,7 @@ func (s *SDKDemoService) demoCreateProduct() (string, error) {
 
 // demoActivateProduct demonstrates getting product info (shows product status)
 func (s *SDKDemoService) demoActivateProduct(productID string) error {
-	log.Println("\n--- 3. Demonstrate Get Product Info ---")
+	log.Println("\n--- 4. Demonstrate Get Product Info ---")
 	
 	product, err := s.client.GetProduct(productID)
 	if err != nil {
@@ -125,7 +153,7 @@ func (s *SDKDemoService) demoActivateProduct(productID string) error {
 
 // demoCreateProductToken demonstrates adding product token
 func (s *SDKDemoService) demoCreateProductToken(productID string) (string, error) {
-	log.Println("\n--- 4. Demonstrate Add Product Token ---")
+	log.Println("\n--- 5. Demonstrate Add Product Token ---")
 	
 	addTokenReq := &client.AddProductTokenRequest{
 		TokenID:          "0x9876543210fedcba9876543210fedcba98765432", // Example token ID
@@ -145,7 +173,7 @@ func (s *SDKDemoService) demoCreateProductToken(productID string) (string, error
 
 // demoExternalCreatePayment demonstrates creating external payment
 func (s *SDKDemoService) demoExternalCreatePayment(productID, productTokenID string) (string, error) {
-	log.Println("\n--- 5. Demonstrate Create External Payment ---")
+	log.Println("\n--- 6. Demonstrate Create External Payment ---")
 	
 	createPaymentReq := &client.ExternalCreatePaymentRequest{
 		ProductID:      productID,
@@ -165,7 +193,7 @@ func (s *SDKDemoService) demoExternalCreatePayment(productID, productTokenID str
 
 // demoGetPaymentByID demonstrates querying payment status
 func (s *SDKDemoService) demoGetPaymentByID(paymentID string) error {
-	log.Println("\n--- 6. Demonstrate Get Payment By ID ---")
+	log.Println("\n--- 7. Demonstrate Get Payment By ID ---")
 	
 	payment, err := s.client.GetPaymentByID(paymentID)
 	if err != nil {

@@ -27,7 +27,7 @@ type Token struct {
 
 // ListTokensResponse represents the response for listing tokens
 type ListTokensResponse struct {
-	Count  int     `json:"count"`
+	Count  int      `json:"count"`
 	Tokens []*Token `json:"tokens"`
 }
 
