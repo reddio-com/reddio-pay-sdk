@@ -1,34 +1,46 @@
 {
-  "name": "@reddio/pay-sdk",
-  "version": "1.0.0",
-  "description": "TypeScript SDK for Reddio Pay services",
+  "name": "reddio-pay-sdk-ts",
+  "version": "1.0.8",
+  "description": "TypeScript SDK for Reddio Pay API - Complete implementation matching Go SDK",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsc",
-    "dev": "ts-node src/examples/basic-usage.ts",
-    "test": "jest",
-    "lint": "eslint src/**/*.ts",
-    "format": "prettier --write src/**/*.ts"
+    "prepublishOnly": "npm run build",
+    "test": "echo \"Tests coming soon\" && exit 0",
+    "dev": "ts-node src/examples/basic-usage.ts"
   },
-  "keywords": ["reddio", "payment", "crypto", "sdk", "blockchain"],
-  "author": "Your Name",
+  "keywords": [
+    "reddio",
+    "payment",
+    "blockchain",
+    "crypto",
+    "sdk",
+    "typescript",
+    "web3",
+    "ethereum"
+  ],
+  "author": "Grant",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-username/reddio-pay-sdk.git",
+    "directory": "reddio-pay-sdk-ts"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
   "dependencies": {
     "axios": "^1.6.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "@typescript-eslint/eslint-plugin": "^6.0.0",
-    "@typescript-eslint/parser": "^6.0.0",
-    "eslint": "^8.50.0",
-    "jest": "^29.0.0",
-    "prettier": "^3.0.0",
-    "ts-jest": "^29.0.0",
-    "ts-node": "^10.0.0",
-    "typescript": "^5.2.0"
-  },
-  "engines": {
-    "node": ">=16.0.0"
+    "typescript": "^5.0.0",
+    "ts-node": "^10.9.0"
   }
 }

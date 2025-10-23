@@ -12,4 +12,4 @@ export * from './types';
 export { HttpClient } from './utils/http-client';
 
 // Export API clients for advanced usage
-export { ProductApi, TokenApi } from './client';
+export { ProductApi, TokenApi, PaymentApi } from './client';
