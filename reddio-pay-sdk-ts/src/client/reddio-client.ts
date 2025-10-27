@@ -2,6 +2,8 @@ import { HttpClient } from '../utils/http-client';
 import { ProductApi } from './product-api';
 import { TokenApi } from './token-api';
 import { PaymentApi } from './payment-api';
+import { AccountApi } from './account-api';
+
 import { ClientConfig, resolveClientConfig } from '../types/common';
 
 /**
@@ -12,6 +14,7 @@ export class ReddioClient {
   public readonly product: ProductApi;
   public readonly token: TokenApi;
   public readonly payment: PaymentApi;
+  public readonly account: AccountApi; 
 
   constructor(config: ClientConfig) {
     // 解析配置，应用默认值
@@ -21,6 +24,7 @@ export class ReddioClient {
     this.product = new ProductApi(this.httpClient);
     this.token = new TokenApi(this.httpClient);
     this.payment = new PaymentApi(this.httpClient);
+    this.account = new AccountApi(this.httpClient); 
   }
 
   /**

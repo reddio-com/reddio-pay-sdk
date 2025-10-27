@@ -74,6 +74,16 @@ export interface AuthResponse {
   refresh_token: string;
 }
 
+
+export interface UpdateWebhookRequest {
+  webhook: string;
+}
+
+// TypeScript equivalent of Go's UpdateWebhookResponse
+export interface UpdateWebhookResponse {
+  message: string;
+}
+
 /**
  * Custom error classes
  */
@@ -135,3 +145,4 @@ function resolveBaseURL(config: ClientConfig): string {
       return REDDIO_ENDPOINTS.PRODUCTION; // Default to production
   }
 }
+
