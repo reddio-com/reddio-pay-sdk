@@ -17,7 +17,6 @@ export class ReddioClient {
   public readonly account: AccountApi; 
 
   constructor(config: ClientConfig) {
-    // 解析配置，应用默认值
     const resolvedConfig = resolveClientConfig(config);
     
     this.httpClient = new HttpClient(resolvedConfig);
@@ -28,7 +27,7 @@ export class ReddioClient {
   }
 
   /**
-   * 静态工厂方法：创建生产环境客户端
+   * Static factory method: create client for production environment
    */
   static createProd(apiKey: string, options?: Partial<ClientConfig>): ReddioClient {
     return new ReddioClient({
@@ -39,7 +38,7 @@ export class ReddioClient {
   }
 
   /**
-   * 静态工厂方法：创建开发环境客户端
+   * Static factory method: create client for development environment
    */
   static createDev(apiKey: string, options?: Partial<ClientConfig>): ReddioClient {
     return new ReddioClient({
@@ -50,7 +49,7 @@ export class ReddioClient {
   }
 
   /**
-   * 静态工厂方法：创建自定义环境客户端
+   * Static factory method: create client for custom environment
    */
   static create(baseURL: string, apiKey: string, options?: Partial<ClientConfig>): ReddioClient {
     return new ReddioClient({
