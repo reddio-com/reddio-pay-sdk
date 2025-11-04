@@ -12,26 +12,26 @@ import (
 
 // Payment represents a payment information
 type Payment struct {
-	PaymentID        string `json:"payment_id"`
-	AccountID        string `json:"account_id"`
-	TokenID          string `json:"token_id"`
-	ProductID        string `json:"product_id"`
-	ProductTokenID   string `json:"product_token_id"`
-	Count            int    `json:"count"`
-	Status           string `json:"status"`
-	PayerEmail       string `json:"payer_email,omitempty"`
-	CreatedAt        string `json:"created_at"`
-	UpdatedAt        string `json:"updated_at"`
-	PaidAt           string `json:"paid_at,omitempty"`
-	ClosedAt         string `json:"closed_at,omitempty"`
-	CloseReason      string `json:"close_reason,omitempty"`
-	TransactionHash  string `json:"transaction_hash,omitempty"`
-	BlockNumber      int64  `json:"block_number,omitempty"`
-	GasUsed          int64  `json:"gas_used,omitempty"`
-	GasPrice         string `json:"gas_price,omitempty"`
-	TotalAmount      string `json:"total_amount"`
-	FeeAmount        string `json:"fee_amount"`
-	RecipientAmount  string `json:"recipient_amount"`
+	PaymentID       string `json:"payment_id"`
+	AccountID       string `json:"account_id"`
+	TokenID         string `json:"token_id"`
+	ProductID       string `json:"product_id"`
+	ProductTokenID  string `json:"product_token_id"`
+	Count           int    `json:"count"`
+	Status          string `json:"status"`
+	PayerEmail      string `json:"payer_email,omitempty"`
+	CreatedAt       string `json:"created_at"`
+	UpdatedAt       string `json:"updated_at"`
+	PaidAt          string `json:"paid_at,omitempty"`
+	ClosedAt        string `json:"closed_at,omitempty"`
+	CloseReason     string `json:"close_reason,omitempty"`
+	TransactionHash string `json:"transaction_hash,omitempty"`
+	BlockNumber     int64  `json:"block_number,omitempty"`
+	GasUsed         int64  `json:"gas_used,omitempty"`
+	GasPrice        string `json:"gas_price,omitempty"`
+	TotalAmount     string `json:"total_amount"`
+	FeeAmount       string `json:"fee_amount"`
+	RecipientAmount string `json:"recipient_amount"`
 }
 
 // ListPaymentsResponse represents the response for listing payments
@@ -258,7 +258,6 @@ type PaymentReceiver struct {
 	Rate             string `json:"rate"`   // percentage
 }
 
-
 // ExternalCreatePaymentRequest represents the request for creating an external payment
 type ExternalCreatePaymentRequest struct {
 	ProductID      string `json:"product_id"`
@@ -276,7 +275,6 @@ type ExternalCreatePaymentResponse struct {
 	TokenAddress     string             `json:"token_address"`
 	Decimals         int                `json:"decimals"`
 }
-
 
 // ExternalCreatePayment creates a new external payment
 func (c *Client) ExternalCreatePayment(req *ExternalCreatePaymentRequest) (*ExternalCreatePaymentResponse, error) {
