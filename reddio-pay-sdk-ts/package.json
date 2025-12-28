@@ -1,0 +1,45 @@
+{
+  "name": "reddio-pay-sdk-ts",
+  "version": "1.0.10",
+  "description": "TypeScript SDK for Reddio Pay API - Complete implementation matching Go SDK",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build",
+    "test": "echo \"Tests coming soon\" && exit 0",
+    "dev": "ts-node src/examples/basic-usage.ts"
+  },
+  "keywords": [
+    "reddio",
+    "payment",
+    "blockchain",
+    "crypto",
+    "sdk",
+    "typescript",
+    "web3",
+    "ethereum"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-username/reddio-pay-sdk.git",
+    "directory": "reddio-pay-sdk-ts"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "ts-node": "^10.9.0"
+  }
+}
